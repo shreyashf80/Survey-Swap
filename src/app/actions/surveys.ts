@@ -6,7 +6,9 @@ import { authOptions } from '@/lib/auth'
 import { z } from 'zod'
 
 const surveySchema = z.object({
-  google_form_url: z.string().url().includes('docs.google.com/forms', { message: 'Must be a valid Google Forms URL' }),
+  google_form_url: z.string().url().refine((url) => url.includes('docs.google.com/forms') || url.includes('forms.gle'), {
+    message: 'Must be a valid Google Forms or forms.gle URL'
+  }),
   target_responses: z.number().int().min(1).max(1000)
 })
 
