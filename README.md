@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SurveySwap 🔄
 
-## Getting Started
+**A Gamified Google Form Response Exchange Platform**
 
-First, run the development server:
+SurveySwap is an open-source web application designed to solve the classic "cold start" problem of gathering survey responses for academic research, product validation, and class projects.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🔴 The Problem
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Students and independent researchers routinely need real human responses to Google Forms (surveys, thesis research, class projects, market validation) but have no easy way to reach strangers willing to fill them out. Posting in random Discord/WhatsApp/Facebook groups is unreliable and one-directional (you ask, but rarely give back). 
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Because there is no incentive for people to spend their time filling out your survey, most surveys struggle to reach a statistically significant sample size.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🟢 The Solution
 
-## Learn More
+SurveySwap solves this with a **closed-loop credit economy**: you earn the right to get responses by giving responses to others. It's fair by construction — nobody can extract value from the system without contributing to it first.
 
-To learn more about Next.js, take a look at the following resources:
+### How the loop works:
+1. **Join:** Sign up and get a free starter credit.
+2. **Spend:** Post your Google Form link and set a target response count. Each response you request costs 1 credit.
+3. **Earn:** Your credit balance hits 0? Your survey is automatically paused. To get more responses, you must go to the "Feed" and fill out other users' surveys. Every survey you fill instantly earns you 1 credit.
+4. **Repeat:** As soon as you earn a credit, your paused survey is instantly reactivated and pushed back to the public feed for others to fill.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+It’s a zero-sum, gamified system that guarantees reciprocal engagement.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## ✨ Key Features
 
-## Deploy on Vercel
+- **Credit-Based Economy:** Fully automated transaction system.
+- **Auto-Pausing & Resuming:** Surveys dynamically appear and disappear from the public feed based on the owner's real-time credit balance.
+- **Concurrency Safe:** Database-level transaction locking prevents race conditions (e.g., two users trying to claim the last remaining credit on a survey).
+- **Gamified UI:** Micro-animations (coin flies, rolling counters, satisfying clicks) make the act of earning credits feel like a game.
+- **Global Leaderboard:** Ranks top users by total forms filled to drive competition.
+- **Admin Dashboard:** A highly secure, isolated operational dashboard for the platform owner to view all users, surveys, fill events, and credit transactions.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🛠 Tech Stack
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+SurveySwap is a modern full-stack web application built with:
+- **Framework:** [Next.js (App Router)](https://nextjs.org/)
+- **Backend:** Next.js Server Actions
+- **Database:** PostgreSQL (hosted on [Neon](https://neon.tech/))
+- **ORM:** [Prisma](https://www.prisma.io/)
+- **Authentication:** [NextAuth.js](https://next-auth.js.org/) (Custom Credentials Provider with zero-PII design and recovery codes)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+- **Animation:** CSS Keyframes & Framer Motion
+- **Validation:** Zod
+
+## 🚀 Deployment
+
+This project is optimized for deployment on [Vercel](https://vercel.com).
+The database relies on Postgres, and Prisma handles all schema migrations automatically. 
+
+Make sure to set the following Environment Variables in your Vercel project:
+- `DATABASE_URL` (Postgres connection string, must include `?sslmode=verify-full`)
+- `NEXTAUTH_SECRET` (Generated via `openssl rand -base64 32`)
+- `NEXTAUTH_URL` (The deployed domain, e.g., `https://surveyswap.vercel.app`)
+- `ADMIN_USERNAME` (The login ID for the admin panel)
+- `ADMIN_PASSWORD_HASH` (A valid bcrypt hash for the admin password)
+
+## 📄 License
+
+MIT License. Feel free to fork, build upon, and use this for your own university communities!
