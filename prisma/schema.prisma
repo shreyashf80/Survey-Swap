@@ -1,0 +1,100 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum SurveyStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum CreditTransactionReason {
+  SIGNUP_BONUS
+  EARNED_FILL
+  SPENT_ON_FILL
+}
+
+enum AdminActionType {
+  CANCEL_SURVEY
+  SUSPEND_USER
+  ADJUST_CREDITS
+}
+
+model User {
+  id                 String   @id @default(uuid())
+  username           String   @unique
+  name               String?
+  password_hash      String
+  recovery_code_hash String
+  credit_balance     Int      @default(1)
+  total_forms_filled Int      @default(0)
+  created_at         DateTime @default(now())
+
+  surveys            Survey[]
+  fill_events        FillEvent[]
+  credit_transactions CreditTransaction[]
+  admin_actions      AdminAction[]
+}
+
+model Survey {
+  id                String   @id @default(uuid())
+  owner_id          String
+  google_form_url   String
+  target_responses  Int
+  current_responses Int      @default(0)
+  status            SurveyStatus
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  owner             User     @relation(fields: [owner_id], references: [id])
+  fill_events       FillEvent[]
+  credit_transactions CreditTransaction[]
+  admin_actions     AdminAction[]
+}
+
+model FillEvent {
+  id         String   @id @default(uuid())
+  survey_id  String
+  filler_id  String
+  created_at DateTime @default(now())
+
+  survey     Survey   @relation(fields: [survey_id], references: [id])
+  filler     User     @relation(fields: [filler_id], references: [id])
+
+  @@unique([survey_id, filler_id])
+}
+
+model CreditTransaction {
+  id                String   @id @default(uuid())
+  user_id           String
+  delta             Int
+  reason            CreditTransactionReason
+  related_survey_id String?
+  created_at        DateTime @default(now())
+
+  user              User     @relation(fields: [user_id], references: [id])
+  related_survey    Survey?  @relation(fields: [related_survey_id], references: [id])
+}
+
+model AdminAction {
+  id               String   @id @default(uuid())
+  action_type      AdminActionType
+  target_user_id   String?
+  target_survey_id String?
+  reason           String
+  created_at       DateTime @default(now())
+
+  target_user      User?    @relation(fields: [target_user_id], references: [id])
+  target_survey    Survey?  @relation(fields: [target_survey_id], references: [id])
+}
